@@ -2,7 +2,7 @@ use ncollide2d::shape::{Cuboid, ShapeHandle};
 
 use nalgebra as na;
 use nphysics2d::math::{Isometry, Vector};
-use nphysics2d::object::{Material, Collider};
+use nphysics2d::object::Material;
 use nphysics2d::volumetric::Volumetric;
 use nphysics2d::world::World;
 
