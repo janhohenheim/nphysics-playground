@@ -11,7 +11,7 @@ fn main() {
     world.set_gravity(Vector::y() * -9.81);
 
     let cuboid = ShapeHandle::new(Cuboid::new(Vector::new(1.0, 2.0)));
-    let local_inertia = cuboid.inertia(1.0);
+    let local_inertia = cuboid.inertia(0.1);
     let local_center_of_mass = cuboid.center_of_mass();
     let rigid_body_handle = world.add_rigid_body(
         Isometry::new(Vector::x() * 2.0, na::zero()),
