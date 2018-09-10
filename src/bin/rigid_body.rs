@@ -1,4 +1,4 @@
-use ncollide2d::shape::{Polyline, ShapeHandle};
+use ncollide2d::shape::{ConvexPolygon, ShapeHandle};
 
 //use nalgebra as na;
 use nphysics2d::math::{Isometry, Point, Vector};
@@ -12,12 +12,14 @@ fn main() {
     let mut world = World::new();
     world.set_gravity(Vector::y() * 9.81);
 
-    let polyline = ShapeHandle::new(Polyline::new(vec![
-        Point::new(1.0, 2.0),
-        Point::new(2.0, 2.0),
-        Point::new(2.0, 3.0),
-        Point::new(1.0, 3.0),
-    ]));
+    let polyline = ShapeHandle::new(
+        ConvexPolygon::try_new(vec![
+            Point::new(1.0, 2.0),
+            Point::new(2.0, 2.0),
+            Point::new(2.0, 3.0),
+            Point::new(1.0, 3.0),
+        ]).unwrap(),
+    );
     let local_inertia = polyline.inertia(0.1);
     let local_center_of_mass = polyline.center_of_mass();
     let rigid_body_handle = world.add_rigid_body(
@@ -42,11 +44,11 @@ fn main() {
             .collider(collider_handle)
             .expect("Collider handle has invalid");
         println!("{}", collider.position());
-        let shape: &Polyline<_> = collider
+        let shape: &ConvexPolygon<_> = collider
             .shape()
             .as_shape()
-            .expect("Failed to cast shapehandle to a cuboid");
-        for vertex in shape.vertices() {
+            .expect("Failed to cast shapehandle to a ConvexPolygon");
+        for vertex in shape.points() {
             println!("{}", vertex);
         }
         thread::sleep(time::Duration::from_millis(1000 / 60));
