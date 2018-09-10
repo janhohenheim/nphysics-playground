@@ -49,7 +49,8 @@ fn main() {
             .as_shape()
             .expect("Failed to cast shapehandle to a ConvexPolygon");
         for vertex in shape.points() {
-            println!("{}", vertex);
+            let position = collider.position();
+            println!("{}", position * vertex);
         }
         thread::sleep(time::Duration::from_millis(1000 / 60));
     }
