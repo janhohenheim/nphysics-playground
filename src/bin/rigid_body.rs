@@ -42,7 +42,7 @@ fn main() {
         world.step();
         let collider = world
             .collider(collider_handle)
-            .expect("Collider handle has invalid");
+            .expect("Collider handle was invalid");
         println!("{}", collider.position());
         let shape: &ConvexPolygon<_> = collider
             .shape()
