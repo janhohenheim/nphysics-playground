@@ -12,7 +12,7 @@ fn main() {
     let mut world = World::new();
     world.set_gravity(Vector::y() * 9.81);
 
-    let polyline = ShapeHandle::new(
+    let polygon = ShapeHandle::new(
         ConvexPolygon::try_new(vec![
             Point::new(1.0, 2.0),
             Point::new(2.0, 2.0),
@@ -20,8 +20,8 @@ fn main() {
             Point::new(1.0, 3.0),
         ]).unwrap(),
     );
-    let local_inertia = polyline.inertia(0.1);
-    let local_center_of_mass = polyline.center_of_mass();
+    let local_inertia = polygon.inertia(0.1);
+    let local_center_of_mass = polygon.center_of_mass();
     let rigid_body_handle = world.add_rigid_body(
         Isometry::new(Vector::new(2.0, 10.0), 3.0),
         local_inertia,
@@ -32,7 +32,7 @@ fn main() {
     let material = Material::default(); // Custom material.
     let collider_handle = world.add_collider(
         0.04,
-        polyline,
+        polygon,
         rigid_body_handle,
         Isometry::identity(),
         material,
