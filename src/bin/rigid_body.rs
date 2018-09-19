@@ -1,6 +1,7 @@
 use ncollide2d::shape::{ConvexPolygon, ShapeHandle};
 
 //use nalgebra as na;
+use nalgebra::base::{Scalar, Vector2};
 use nphysics2d::math::{Isometry, Point, Vector};
 use nphysics2d::object::Material;
 use nphysics2d::volumetric::Volumetric;
@@ -51,7 +52,27 @@ fn main() {
         for vertex in shape.points() {
             let position = collider.position();
             println!("{}", position * vertex);
+            // Own implementation:
+            let (center_x, center_y) = elements(&position.translation.vector);
+            let rotation: f64 = position.rotation.angle();
+            let (orig_x, orig_y) = (vertex.x + center_x, vertex.y + center_y);
+            let rotated_x = rotation.cos() * (orig_x - center_x)
+                - rotation.sin() * (orig_y - center_y)
+                + center_x;
+            let rotated_y = rotation.sin() * (orig_x - center_x)
+                + rotation.cos() * (orig_y - center_y)
+                + center_y;
+            println!("[{}, {}]", rotated_x, rotated_y);
         }
         thread::sleep(time::Duration::from_millis(1000 / 60));
     }
+}
+
+fn elements<N>(vector: &Vector2<N>) -> (N, N)
+where
+    N: Scalar,
+{
+    let mut iter = vector.iter();
+
+    (*iter.next().unwrap(), *iter.next().unwrap())
 }
