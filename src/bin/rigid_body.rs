@@ -33,10 +33,40 @@ fn main() {
     let material = Material::default(); // Custom material.
     let collider_handle = world.add_collider(
         0.04,
-        polygon,
+        polygon.clone(),
         rigid_body_handle,
         Isometry::identity(),
+        material.clone(),
+    );
+
+    let rigid_body_handle_two = world.add_rigid_body(
+        Isometry::new(Vector::new(1.0, 10.0), 3.0),
+        local_inertia,
+        local_center_of_mass,
+    );
+
+    let collider_handle_two = world.add_collider(
+        0.04,
+        polygon,
+        rigid_body_handle_two,
+        Isometry::identity(),
         material,
+    );
+
+    let sensor_shape = ShapeHandle::new(
+        ConvexPolygon::try_new(vec![
+            Point::new(-5.0, -5.0),
+            Point::new(5.0, -5.0),
+            Point::new(5.0, 5.0),
+            Point::new(-5.0, 5.0),
+        ]).unwrap(),
+    );
+
+    let sensor_position = Isometry::new(Vector::new(0.0, 0.0), 0.0);
+    let sensor_handle = world.add_sensor(
+        sensor_shape,      // The geometric shape of the sensor.
+        rigid_body_handle, // The handle of the body part this sensor is attached to.
+        sensor_position,   // The relative position of this sensor wrt. its parent.
     );
 
     loop {
@@ -44,14 +74,14 @@ fn main() {
         let collider = world
             .collider(collider_handle)
             .expect("Collider handle was invalid");
-        println!("{}", collider.position());
+        //println!("{}", collider.position());
         let shape: &ConvexPolygon<_> = collider
             .shape()
             .as_shape()
             .expect("Failed to cast shapehandle to a ConvexPolygon");
         for vertex in shape.points() {
             let position = collider.position();
-            println!("{}", position * vertex);
+            //println!("{}", position * vertex);
             // Own implementation:
             let (center_x, center_y) = elements(&position.translation.vector);
             let rotation: f64 = position.rotation.angle();
@@ -62,8 +92,13 @@ fn main() {
             let rotated_y = rotation.sin() * (orig_x - center_x)
                 + rotation.cos() * (orig_y - center_y)
                 + center_y;
-            println!("[{}, {}]", rotated_x, rotated_y);
+            //println!("[{}, {}]", rotated_x, rotated_y);
         }
+
+        for contact in world.contact_events() {
+            println!("{:?}", contact);
+        }
+
         thread::sleep(time::Duration::from_millis(1000 / 60));
     }
 }
