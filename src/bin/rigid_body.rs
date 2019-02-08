@@ -91,7 +91,7 @@ fn main() {
         }
 
         let body_handle = world.collider_body_handle(collider_handle).unwrap();
-        let mut body = world.body(body_handle).unwrap();
+        let body = world.body_mut(body_handle).unwrap();
         let force = Force::from_slice(&[5.00, 2.00, 0.5]);
 
         body.apply_force(0, &force, ForceType::Force, true);
