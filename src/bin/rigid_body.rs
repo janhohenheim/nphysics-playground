@@ -1,13 +1,10 @@
 use ncollide2d::shape::{ConvexPolygon, ShapeHandle};
 
 //use nalgebra as na;
-use nalgebra::base::{Scalar, Vector2};
 use nphysics2d::algebra::ForceType;
-use nphysics2d::force_generator::ForceGenerator;
 use nphysics2d::material::{BasicMaterial, MaterialHandle};
-use nphysics2d::math::{Force, Isometry, Point, Vector, Velocity};
-use nphysics2d::object::{BodyHandle, BodySet, ColliderDesc, RigidBodyDesc};
-use nphysics2d::solver::IntegrationParameters;
+use nphysics2d::math::{Force, Isometry, Point, Vector};
+use nphysics2d::object::{Body, ColliderDesc, RigidBodyDesc};
 use nphysics2d::volumetric::Volumetric;
 use nphysics2d::world::World;
 use std::{thread, time};
@@ -65,46 +62,14 @@ fn main() {
         let collider = world
             .collider(collider_handle)
             .expect("Collider handle was invalid");
-        println!("{}", collider.position());
-        let shape: &ConvexPolygon<_> = collider
-            .shape()
-            .as_shape()
-            .expect("Failed to cast shapehandle to a ConvexPolygon");
-        for vertex in shape.points() {
-            let position = collider.position();
-            //println!("{}", position * vertex);
-            // Own implementation:
-            let (center_x, center_y) = elements(&position.translation.vector);
-            let rotation: f64 = position.rotation.angle();
-            let (orig_x, orig_y) = (vertex.x + center_x, vertex.y + center_y);
-            let rotated_x = rotation.cos() * (orig_x - center_x)
-                - rotation.sin() * (orig_y - center_y)
-                + center_x;
-            let rotated_y = rotation.sin() * (orig_x - center_x)
-                + rotation.cos() * (orig_y - center_y)
-                + center_y;
-            //println!("[{}, {}]", rotated_x, rotated_y);
-        }
 
-        for proximity in world.proximity_events() {
-            //println!("{:?}", proximity);
-        }
+        println!("{}", collider.position());
 
         let body_handle = world.collider_body_handle(collider_handle).unwrap();
-        let body = world.body_mut(body_handle).unwrap();
+        let body = world.rigid_body_mut(body_handle).unwrap();
         let force = Force::from_slice(&[5.00, 2.00, 0.5]);
-
-        body.apply_force(0, &force, ForceType::Force, true);
+        body.apply_force(body.part_handle().1, &force, ForceType::Force, true);
 
         thread::sleep(time::Duration::from_millis(1000 / 60));
     }
-}
-
-fn elements<N>(vector: &Vector2<N>) -> (N, N)
-where
-    N: Scalar,
-{
-    let mut iter = vector.iter();
-
-    (*iter.next().unwrap(), *iter.next().unwrap())
 }
