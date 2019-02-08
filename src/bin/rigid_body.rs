@@ -2,6 +2,7 @@ use ncollide2d::shape::{ConvexPolygon, ShapeHandle};
 
 //use nalgebra as na;
 use nalgebra::base::{Scalar, Vector2};
+use nphysics2d::algebra::ForceType;
 use nphysics2d::force_generator::ForceGenerator;
 use nphysics2d::material::{BasicMaterial, MaterialHandle};
 use nphysics2d::math::{Force, Isometry, Point, Vector, Velocity};
@@ -88,6 +89,12 @@ fn main() {
         for proximity in world.proximity_events() {
             //println!("{:?}", proximity);
         }
+
+        let body_handle = world.collider_body_handle(collider_handle).unwrap();
+        let mut body = world.body(body_handle).unwrap();
+        let force = Force::from_slice(&[5.00, 2.00, 0.5]);
+
+        body.apply_force(0, &force, ForceType::Force, true);
 
         thread::sleep(time::Duration::from_millis(1000 / 60));
     }
