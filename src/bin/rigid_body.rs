@@ -3,46 +3,13 @@ use ncollide2d::shape::{ConvexPolygon, ShapeHandle};
 //use nalgebra as na;
 use nalgebra::base::{Scalar, Vector2};
 use nphysics2d::force_generator::ForceGenerator;
+use nphysics2d::material::{BasicMaterial, MaterialHandle};
 use nphysics2d::math::{Force, Isometry, Point, Vector, Velocity};
-use nphysics2d::object::{BodyHandle, BodySet, Material};
+use nphysics2d::object::{BodyHandle, BodySet, ColliderDesc, RigidBodyDesc};
 use nphysics2d::solver::IntegrationParameters;
 use nphysics2d::volumetric::Volumetric;
 use nphysics2d::world::World;
 use std::{thread, time};
-
-#[derive(Default)]
-pub struct RadialForce {
-    parts: Vec<BodyHandle>, // Body parts affected by the force generator.
-    is_done: bool,
-}
-
-impl RadialForce {
-    /// Add a body part to be affected by this force generator.
-    pub fn add_body_part(&mut self, body: BodyHandle) {
-        self.parts.push(body)
-    }
-}
-
-impl ForceGenerator<f64> for RadialForce {
-    fn apply(&mut self, _: &IntegrationParameters<f64>, bodies: &mut BodySet<f64>) -> bool {
-        if self.is_done {
-            return false;
-        }
-        self.is_done = true;
-        for &handle in &self.parts {
-            // Generate the force only if the body has not been removed from the world.
-            if bodies.contains(handle) {
-                let mut body = bodies.body_part_mut(handle);
-                let force = Force::from_slice(&[5.00, 2.00, 0.5]);
-                body.apply_force(&force);
-            }
-        }
-
-        // If `false` is returned, the physis world will remove
-        // this force generator after this call.
-        true
-    }
-}
 
 fn main() {
     let mut world = World::new();
@@ -59,56 +26,38 @@ fn main() {
     );
     let local_inertia = polygon.inertia(0.1);
     let local_center_of_mass = polygon.center_of_mass();
-    let rigid_body_handle = world.add_rigid_body(
-        Isometry::new(Vector::new(2.0, 10.0), 3.0),
-        local_inertia,
-        local_center_of_mass,
-    );
+    let rigid_body_handle = RigidBodyDesc::new()
+        .position(Isometry::new(Vector::new(2.0, 10.0), 3.0))
+        .local_inertia(local_inertia)
+        .local_center_of_mass(local_center_of_mass)
+        .build(&mut world)
+        .part_handle();
 
     // Create a collider attached to a previously-added rigid-body with handle `rigid_body_handle`.
-    let material = Material::default(); // Custom material.
-    let collider_handle = world.add_collider(
-        0.04,
-        polygon.clone(),
-        rigid_body_handle,
-        Isometry::identity(),
-        material.clone(),
-    );
+    let material = MaterialHandle::new(BasicMaterial::default()); // Custom material.
 
-    let rigid_body_handle_two = world.add_rigid_body(
-        Isometry::new(Vector::new(20.0, 25.0), 3.0),
-        local_inertia,
-        local_center_of_mass,
-    );
+    let collider_handle = ColliderDesc::new(polygon.clone())
+        .margin(0.04)
+        .position(Isometry::identity())
+        .material(material.clone())
+        .build_with_parent(rigid_body_handle, &mut world)
+        .unwrap()
+        .handle();
 
-    let collider_handle_two = world.add_collider(
-        0.04,
-        polygon,
-        rigid_body_handle_two,
-        Isometry::identity(),
-        material,
-    );
+    let rigid_body_handle_two = RigidBodyDesc::new()
+        .position(Isometry::new(Vector::new(20.0, 25.0), 3.0))
+        .local_inertia(local_inertia)
+        .local_center_of_mass(local_center_of_mass)
+        .build(&mut world)
+        .part_handle();
 
-    let sensor_shape = ShapeHandle::new(
-        ConvexPolygon::try_new(vec![
-            Point::new(-50.0, -50.0),
-            Point::new(50.0, -50.0),
-            Point::new(50.0, 50.0),
-            Point::new(-50.0, 50.0),
-        ])
-        .unwrap(),
-    );
-
-    let sensor_position = Isometry::new(Vector::new(0.0, 0.0), 0.0);
-    let sensor_handle = world.add_sensor(
-        sensor_shape,      // The geometric shape of the sensor.
-        rigid_body_handle, // The handle of the body part this sensor is attached to.
-        sensor_position,   // The relative position of this sensor wrt. its parent.
-    );
-
-    let mut force_generator = RadialForce::default();
-    force_generator.add_body_part(rigid_body_handle);
-    world.add_force_generator(force_generator);
+    ColliderDesc::new(polygon)
+        .margin(0.04)
+        .position(Isometry::identity())
+        .material(material)
+        .build_with_parent(rigid_body_handle_two, &mut world)
+        .unwrap()
+        .handle();
 
     loop {
         world.step();

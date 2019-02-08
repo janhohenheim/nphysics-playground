@@ -5,9 +5,9 @@ authors = ["Jan Nils Ferner <jn_ferner@hotmail.de>"]
 edition = "2018"
 
 [dependencies]
-nalgebra = "0.16"
+nalgebra = "0.17"
 # Choose the one you need, or both.
-ncollide2d = "0.17"
+ncollide2d = "0.18"
 # Choose the one you need, or both.
-nphysics2d = "0.9"
+nphysics2d = "0.10"
 
