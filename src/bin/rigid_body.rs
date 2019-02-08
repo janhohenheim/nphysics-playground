@@ -25,7 +25,7 @@ fn main() {
         .position(Isometry::new(Vector::new(2.0, 10.0), 3.0))
         .local_inertia(local_inertia)
         .local_center_of_mass(local_center_of_mass)
-        .mass(100.0)
+        .mass(1.0)
         .build(&mut world)
         .part_handle();
 
