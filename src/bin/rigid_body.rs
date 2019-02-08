@@ -11,6 +11,7 @@ use std::{thread, time};
 
 fn main() {
     let mut world = World::new();
+    world.set_timestep(1000.0 / 60.0);
     //world.set_gravity(Vector::y() * 9.81);
 
     let polygon = ShapeHandle::new(
@@ -28,6 +29,7 @@ fn main() {
         .position(Isometry::new(Vector::new(2.0, 10.0), 3.0))
         .local_inertia(local_inertia)
         .local_center_of_mass(local_center_of_mass)
+        .mass(100.0)
         .build(&mut world)
         .part_handle();
 
