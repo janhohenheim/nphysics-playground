@@ -11,7 +11,7 @@ use std::{thread, time};
 
 fn main() {
     let mut world = World::new();
-    world.set_timestep(1000.0 / 60.0);
+    world.set_timestep(1.0 / 60.0);
     //world.set_gravity(Vector::y() * 9.81);
 
     let polygon = ShapeHandle::new(
