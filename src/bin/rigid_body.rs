@@ -1,6 +1,4 @@
 use ncollide2d::shape::{ConvexPolygon, ShapeHandle};
-
-//use nalgebra as na;
 use nphysics2d::algebra::ForceType;
 use nphysics2d::material::{BasicMaterial, MaterialHandle};
 use nphysics2d::math::{Force, Isometry, Point, Vector};
@@ -11,8 +9,6 @@ use std::{thread, time};
 
 fn main() {
     let mut world = World::new();
-    world.set_timestep(1.0 / 60.0);
-    //world.set_gravity(Vector::y() * 9.81);
 
     let polygon = ShapeHandle::new(
         ConvexPolygon::try_new(vec![
@@ -33,29 +29,13 @@ fn main() {
         .build(&mut world)
         .part_handle();
 
-    // Create a collider attached to a previously-added rigid-body with handle `rigid_body_handle`.
-    let material = MaterialHandle::new(BasicMaterial::default()); // Custom material.
+    let material = MaterialHandle::new(BasicMaterial::default());
 
     let collider_handle = ColliderDesc::new(polygon.clone())
         .margin(0.04)
         .position(Isometry::identity())
         .material(material.clone())
         .build_with_parent(rigid_body_handle, &mut world)
-        .unwrap()
-        .handle();
-
-    let rigid_body_handle_two = RigidBodyDesc::new()
-        .position(Isometry::new(Vector::new(20.0, 25.0), 3.0))
-        .local_inertia(local_inertia)
-        .local_center_of_mass(local_center_of_mass)
-        .build(&mut world)
-        .part_handle();
-
-    ColliderDesc::new(polygon)
-        .margin(0.04)
-        .position(Isometry::identity())
-        .material(material)
-        .build_with_parent(rigid_body_handle_two, &mut world)
         .unwrap()
         .handle();
 
