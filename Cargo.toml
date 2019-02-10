@@ -9,5 +9,5 @@ nalgebra = "0.17"
 # Choose the one you need, or both.
 ncollide2d = "0.18"
 # Choose the one you need, or both.
-nphysics2d = "0.10"
+nphysics2d = "0.10.2"
 
